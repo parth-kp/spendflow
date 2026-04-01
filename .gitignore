@@ -1,0 +1,15 @@
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+node_modules/
+coverage/
+tmp/
+api/config/master.key
+api/config/credentials/*.key
+api/storage/*
+!api/storage/.keep
+api/log/*
+api/tmp/*
+web/dist/
