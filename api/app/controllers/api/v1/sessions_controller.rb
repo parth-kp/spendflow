@@ -2,6 +2,7 @@ module Api
   module V1
     class SessionsController < ApplicationController
       skip_before_action :authenticate!, only: :create
+      skip_after_action :verify_authorized
 
       def create
         user = User.unscoped.active.find_by("lower(email) = ?", params.require(:email).to_s.downcase)

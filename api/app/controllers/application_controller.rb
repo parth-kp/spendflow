@@ -1,11 +1,16 @@
 class ApplicationController < ActionController::API
+  include Pundit::Authorization
+
   before_action :authenticate!
+  after_action :verify_authorized, except: :index
+  after_action :verify_policy_scoped, only: :index
 
   attr_reader :current_user
 
   rescue_from ActiveRecord::RecordNotFound, with: :not_found
   rescue_from ActiveRecord::RecordInvalid, with: :unprocessable
   rescue_from ActionController::ParameterMissing, with: :bad_request
+  rescue_from Pundit::NotAuthorizedError, with: :forbidden
 
   private
 
@@ -37,6 +42,10 @@ class ApplicationController < ActionController::API
 
   def unprocessable(exception)
     render_error(:unprocessable_content, "Validation failed", exception.record.errors.to_hash(true))
+  end
+
+  def forbidden
+    render_error(:forbidden, "You are not allowed to do that")
   end
 
   def bad_request(exception)
