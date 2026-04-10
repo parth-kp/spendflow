@@ -1,5 +1,6 @@
 class ApplicationController < ActionController::API
   include Pundit::Authorization
+  include Paginatable
 
   before_action :authenticate!
   after_action :verify_authorized, unless: -> { action_name == "index" }
