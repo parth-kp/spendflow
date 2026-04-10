@@ -2,8 +2,8 @@ class ApplicationController < ActionController::API
   include Pundit::Authorization
 
   before_action :authenticate!
-  after_action :verify_authorized, except: :index
-  after_action :verify_policy_scoped, only: :index
+  after_action :verify_authorized, unless: -> { action_name == "index" }
+  after_action :verify_policy_scoped, if: -> { action_name == "index" }
 
   attr_reader :current_user
 
