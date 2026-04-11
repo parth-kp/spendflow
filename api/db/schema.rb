@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_10_160309) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_11_090725) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -33,6 +33,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_10_160309) do
     t.datetime "updated_at", null: false
     t.index ["company_id", "code"], name: "index_departments_on_company_id_and_code", unique: true
     t.index ["company_id"], name: "index_departments_on_company_id"
+  end
+
+  create_table "number_sequences", force: :cascade do |t|
+    t.bigint "company_id", null: false
+    t.string "prefix", null: false
+    t.bigint "value", default: 0, null: false
+    t.index ["company_id", "prefix"], name: "index_number_sequences_on_company_id_and_prefix", unique: true
   end
 
   create_table "suppliers", force: :cascade do |t|
@@ -65,6 +72,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_10_160309) do
   end
 
   add_foreign_key "departments", "companies"
+  add_foreign_key "number_sequences", "companies"
   add_foreign_key "suppliers", "companies"
   add_foreign_key "users", "companies"
   add_foreign_key "users", "departments"
