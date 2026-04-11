@@ -23,6 +23,9 @@ class ApplicationController < ActionController::API
     company = Company.find(claims["cid"])
     ActsAsTenant.current_tenant = company
     @current_user = company.users.active.find(claims["sub"])
+    Current.user = @current_user
+    Current.request_id = request.request_id
+    Current.ip_address = request.remote_ip
   rescue AuthToken::Invalid, ActiveRecord::RecordNotFound
     render_error(:unauthorized, "Invalid or expired token")
   end
