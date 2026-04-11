@@ -10,9 +10,24 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_11_090725) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_11_102543) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "audit_events", force: :cascade do |t|
+    t.bigint "company_id", null: false
+    t.bigint "actor_id"
+    t.string "auditable_type", null: false
+    t.bigint "auditable_id", null: false
+    t.string "action", null: false
+    t.jsonb "metadata", default: {}, null: false
+    t.string "request_id"
+    t.string "ip_address"
+    t.datetime "created_at", null: false
+    t.index ["actor_id"], name: "index_audit_events_on_actor_id"
+    t.index ["auditable_type", "auditable_id"], name: "index_audit_events_on_auditable"
+    t.index ["company_id"], name: "index_audit_events_on_company_id"
+  end
 
   create_table "companies", force: :cascade do |t|
     t.string "name", null: false
@@ -71,6 +86,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_11_090725) do
     t.index ["department_id"], name: "index_users_on_department_id"
   end
 
+  add_foreign_key "audit_events", "companies"
+  add_foreign_key "audit_events", "users", column: "actor_id"
   add_foreign_key "departments", "companies"
   add_foreign_key "number_sequences", "companies"
   add_foreign_key "suppliers", "companies"
