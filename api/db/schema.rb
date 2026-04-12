@@ -10,9 +10,45 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_12_072922) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_12_083240) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "approval_rules", force: :cascade do |t|
+    t.bigint "company_id", null: false
+    t.bigint "department_id"
+    t.bigint "approver_id"
+    t.string "name", null: false
+    t.integer "level", null: false
+    t.decimal "min_amount", precision: 14, scale: 2, default: "0.0", null: false
+    t.string "approver_role", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["approver_id"], name: "index_approval_rules_on_approver_id"
+    t.index ["company_id"], name: "index_approval_rules_on_company_id"
+    t.index ["department_id"], name: "index_approval_rules_on_department_id"
+  end
+
+  create_table "approval_steps", force: :cascade do |t|
+    t.bigint "company_id", null: false
+    t.bigint "requisition_id", null: false
+    t.bigint "approval_rule_id"
+    t.bigint "approver_id"
+    t.bigint "decided_by_id"
+    t.integer "level", null: false
+    t.string "approver_role", null: false
+    t.string "status", default: "pending", null: false
+    t.text "comment"
+    t.datetime "decided_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["approval_rule_id"], name: "index_approval_steps_on_approval_rule_id"
+    t.index ["approver_id"], name: "index_approval_steps_on_approver_id"
+    t.index ["company_id"], name: "index_approval_steps_on_company_id"
+    t.index ["decided_by_id"], name: "index_approval_steps_on_decided_by_id"
+    t.index ["requisition_id", "level"], name: "index_approval_steps_on_requisition_id_and_level", unique: true
+    t.index ["requisition_id"], name: "index_approval_steps_on_requisition_id"
+  end
 
   create_table "audit_events", force: :cascade do |t|
     t.bigint "company_id", null: false
@@ -122,6 +158,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_12_072922) do
     t.index ["department_id"], name: "index_users_on_department_id"
   end
 
+  add_foreign_key "approval_rules", "companies"
+  add_foreign_key "approval_rules", "departments"
+  add_foreign_key "approval_rules", "users", column: "approver_id"
+  add_foreign_key "approval_steps", "approval_rules", on_delete: :nullify
+  add_foreign_key "approval_steps", "companies"
+  add_foreign_key "approval_steps", "requisitions"
+  add_foreign_key "approval_steps", "users", column: "approver_id"
+  add_foreign_key "approval_steps", "users", column: "decided_by_id"
   add_foreign_key "audit_events", "companies"
   add_foreign_key "audit_events", "users", column: "actor_id"
   add_foreign_key "departments", "companies"
