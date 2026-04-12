@@ -1,7 +1,12 @@
 class ApplicationJob < ActiveJob::Base
-  # Automatically retry jobs that encountered a deadlock
-  # retry_on ActiveRecord::Deadlocked
+  retry_on ActiveRecord::Deadlocked, wait: :polynomially_longer, attempts: 5
+  discard_on ActiveJob::DeserializationError
 
-  # Most jobs are safe to ignore if the underlying records are no longer available
-  # discard_on ActiveJob::DeserializationError
+  private
+
+  # acts_as_tenant state does not cross the process boundary into Sidekiq,
+  # so every tenant-aware job receives the company explicitly.
+  def with_company(company_id, &)
+    ActsAsTenant.with_tenant(Company.find(company_id), &)
+  end
 end
