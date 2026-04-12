@@ -7,6 +7,7 @@ class Requisition < ApplicationRecord
   belongs_to :department
   belongs_to :supplier, optional: true
   has_many :lines, class_name: "RequisitionLine", inverse_of: :requisition, dependent: :destroy
+  has_many :approval_steps, -> { order(:level) }, dependent: :destroy
 
   accepts_nested_attributes_for :lines, allow_destroy: true
 
@@ -50,6 +51,10 @@ class Requisition < ApplicationRecord
 
   def editable?
     draft?
+  end
+
+  def current_step
+    approval_steps.detect(&:pending?)
   end
 
   private
