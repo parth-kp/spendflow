@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_11_102543) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_12_072922) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -57,6 +57,42 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_11_102543) do
     t.index ["company_id", "prefix"], name: "index_number_sequences_on_company_id_and_prefix", unique: true
   end
 
+  create_table "requisition_lines", force: :cascade do |t|
+    t.bigint "requisition_id", null: false
+    t.string "description", null: false
+    t.decimal "quantity", precision: 12, scale: 3, null: false
+    t.string "unit", default: "ea", null: false
+    t.decimal "unit_price", precision: 14, scale: 2, null: false
+    t.decimal "line_total", precision: 14, scale: 2, default: "0.0", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["requisition_id"], name: "index_requisition_lines_on_requisition_id"
+  end
+
+  create_table "requisitions", force: :cascade do |t|
+    t.bigint "company_id", null: false
+    t.bigint "requester_id", null: false
+    t.bigint "department_id", null: false
+    t.bigint "supplier_id"
+    t.string "number", null: false
+    t.string "title", null: false
+    t.text "justification"
+    t.string "status", default: "draft", null: false
+    t.decimal "total_amount", precision: 14, scale: 2, default: "0.0", null: false
+    t.string "currency", default: "USD", null: false
+    t.date "needed_by"
+    t.datetime "submitted_at"
+    t.datetime "approved_at"
+    t.datetime "rejected_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["company_id", "number"], name: "index_requisitions_on_company_id_and_number", unique: true
+    t.index ["company_id"], name: "index_requisitions_on_company_id"
+    t.index ["department_id"], name: "index_requisitions_on_department_id"
+    t.index ["requester_id"], name: "index_requisitions_on_requester_id"
+    t.index ["supplier_id"], name: "index_requisitions_on_supplier_id"
+  end
+
   create_table "suppliers", force: :cascade do |t|
     t.bigint "company_id", null: false
     t.string "name", null: false
@@ -90,6 +126,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_11_102543) do
   add_foreign_key "audit_events", "users", column: "actor_id"
   add_foreign_key "departments", "companies"
   add_foreign_key "number_sequences", "companies"
+  add_foreign_key "requisition_lines", "requisitions", on_delete: :cascade
+  add_foreign_key "requisitions", "companies"
+  add_foreign_key "requisitions", "departments"
+  add_foreign_key "requisitions", "suppliers"
+  add_foreign_key "requisitions", "users", column: "requester_id"
   add_foreign_key "suppliers", "companies"
   add_foreign_key "users", "companies"
   add_foreign_key "users", "departments"
