@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_12_083240) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_13_135657) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -84,6 +84,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_12_083240) do
     t.datetime "updated_at", null: false
     t.index ["company_id", "code"], name: "index_departments_on_company_id_and_code", unique: true
     t.index ["company_id"], name: "index_departments_on_company_id"
+  end
+
+  create_table "notifications", force: :cascade do |t|
+    t.bigint "company_id", null: false
+    t.bigint "user_id", null: false
+    t.string "subject_type"
+    t.bigint "subject_id"
+    t.string "kind", null: false
+    t.string "title", null: false
+    t.text "body"
+    t.datetime "read_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["company_id"], name: "index_notifications_on_company_id"
+    t.index ["subject_type", "subject_id"], name: "index_notifications_on_subject"
+    t.index ["user_id"], name: "index_notifications_on_user_id"
   end
 
   create_table "number_sequences", force: :cascade do |t|
@@ -169,6 +185,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_12_083240) do
   add_foreign_key "audit_events", "companies"
   add_foreign_key "audit_events", "users", column: "actor_id"
   add_foreign_key "departments", "companies"
+  add_foreign_key "notifications", "companies"
+  add_foreign_key "notifications", "users"
   add_foreign_key "number_sequences", "companies"
   add_foreign_key "requisition_lines", "requisitions", on_delete: :cascade
   add_foreign_key "requisitions", "companies"
