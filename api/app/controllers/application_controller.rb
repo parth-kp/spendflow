@@ -12,6 +12,8 @@ class ApplicationController < ActionController::API
   rescue_from ActiveRecord::RecordInvalid, with: :unprocessable
   rescue_from ActionController::ParameterMissing, with: :bad_request
   rescue_from Pundit::NotAuthorizedError, with: :forbidden
+  rescue_from AASM::InvalidTransition, with: :conflict
+  rescue_from Approvals::Workflow::Error, with: :conflict
 
   private
 
@@ -46,6 +48,10 @@ class ApplicationController < ActionController::API
 
   def unprocessable(exception)
     render_error(:unprocessable_content, "Validation failed", exception.record.errors.to_hash(true))
+  end
+
+  def conflict(exception)
+    render_error(:conflict, exception.message)
   end
 
   def forbidden
