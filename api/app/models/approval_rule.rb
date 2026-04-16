@@ -4,6 +4,7 @@ class ApprovalRule < ApplicationRecord
   acts_as_tenant :company
   belongs_to :department, optional: true
   belongs_to :approver, class_name: "User", optional: true
+  validates_same_tenant :department, :approver
 
   validates :name, presence: true
   validates :level, numericality: { only_integer: true, in: 1..10 }

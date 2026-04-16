@@ -3,6 +3,7 @@ class User < ApplicationRecord
 
   acts_as_tenant :company
   belongs_to :department, optional: true
+  validates_same_tenant :department
 
   has_secure_password
 

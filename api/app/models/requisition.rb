@@ -10,6 +10,7 @@ class Requisition < ApplicationRecord
   has_many :approval_steps, -> { order(:level) }, dependent: :destroy
 
   accepts_nested_attributes_for :lines, allow_destroy: true
+  validates_same_tenant :requester, :department, :supplier
 
   validates :title, presence: true
   validates :number, presence: true
