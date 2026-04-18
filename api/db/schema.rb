@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_13_135657) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_18_071609) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -109,6 +109,44 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_13_135657) do
     t.index ["company_id", "prefix"], name: "index_number_sequences_on_company_id_and_prefix", unique: true
   end
 
+  create_table "purchase_order_lines", force: :cascade do |t|
+    t.bigint "purchase_order_id", null: false
+    t.bigint "requisition_line_id"
+    t.integer "line_no", null: false
+    t.string "description", null: false
+    t.string "unit", default: "ea", null: false
+    t.decimal "quantity", precision: 12, scale: 3, null: false
+    t.decimal "unit_price", precision: 14, scale: 2, null: false
+    t.decimal "received_quantity", precision: 12, scale: 3, default: "0.0", null: false
+    t.decimal "invoiced_quantity", precision: 12, scale: 3, default: "0.0", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["purchase_order_id", "line_no"], name: "index_purchase_order_lines_on_purchase_order_id_and_line_no", unique: true
+    t.index ["purchase_order_id"], name: "index_purchase_order_lines_on_purchase_order_id"
+    t.index ["requisition_line_id"], name: "index_purchase_order_lines_on_requisition_line_id"
+  end
+
+  create_table "purchase_orders", force: :cascade do |t|
+    t.bigint "company_id", null: false
+    t.bigint "requisition_id"
+    t.bigint "supplier_id", null: false
+    t.bigint "created_by_id", null: false
+    t.string "number", null: false
+    t.string "status", default: "issued", null: false
+    t.decimal "total_amount", precision: 14, scale: 2, default: "0.0", null: false
+    t.string "currency", null: false
+    t.date "expected_on"
+    t.datetime "issued_at"
+    t.datetime "closed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["company_id", "number"], name: "index_purchase_orders_on_company_id_and_number", unique: true
+    t.index ["company_id"], name: "index_purchase_orders_on_company_id"
+    t.index ["created_by_id"], name: "index_purchase_orders_on_created_by_id"
+    t.index ["requisition_id"], name: "index_purchase_orders_on_requisition_id", unique: true
+    t.index ["supplier_id"], name: "index_purchase_orders_on_supplier_id"
+  end
+
   create_table "requisition_lines", force: :cascade do |t|
     t.bigint "requisition_id", null: false
     t.string "description", null: false
@@ -188,6 +226,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_13_135657) do
   add_foreign_key "notifications", "companies"
   add_foreign_key "notifications", "users"
   add_foreign_key "number_sequences", "companies"
+  add_foreign_key "purchase_order_lines", "purchase_orders", on_delete: :cascade
+  add_foreign_key "purchase_order_lines", "requisition_lines", on_delete: :nullify
+  add_foreign_key "purchase_orders", "companies"
+  add_foreign_key "purchase_orders", "requisitions"
+  add_foreign_key "purchase_orders", "suppliers"
+  add_foreign_key "purchase_orders", "users", column: "created_by_id"
   add_foreign_key "requisition_lines", "requisitions", on_delete: :cascade
   add_foreign_key "requisitions", "companies"
   add_foreign_key "requisitions", "departments"

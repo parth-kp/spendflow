@@ -8,6 +8,7 @@ class Requisition < ApplicationRecord
   belongs_to :supplier, optional: true
   has_many :lines, class_name: "RequisitionLine", inverse_of: :requisition, dependent: :destroy
   has_many :approval_steps, -> { order(:level) }, dependent: :destroy
+  has_one :purchase_order, dependent: :restrict_with_error
 
   accepts_nested_attributes_for :lines, allow_destroy: true
   validates_same_tenant :requester, :department, :supplier
