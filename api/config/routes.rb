@@ -14,6 +14,13 @@ Rails.application.routes.draw do
           post :revise
         end
       end
+      resources :purchase_orders, only: %i[index show create] do
+        member do
+          post :receive
+          post :close
+          post :cancel
+        end
+      end
     end
   end
 end

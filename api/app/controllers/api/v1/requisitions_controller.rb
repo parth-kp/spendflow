@@ -89,7 +89,9 @@ module Api
       def render_detail(status = :ok)
         policy = RequisitionPolicy.new(current_user, @requisition)
         permissions = %i[update submit cancel revise decide convert].index_with { |p| policy.public_send(:"#{p}?") }
-        render json: RequisitionSerializer.new(@requisition, detail: true, permissions: permissions).as_json, status: status
+        po = @requisition.purchase_order&.slice(:id, :number, :status)
+        render json: RequisitionSerializer.new(@requisition, detail: true, permissions: permissions, purchase_order: po).as_json,
+               status: status
       end
     end
   end
