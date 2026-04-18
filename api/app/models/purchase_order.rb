@@ -8,6 +8,7 @@ class PurchaseOrder < ApplicationRecord
   belongs_to :created_by, class_name: "User"
   has_many :lines, -> { order(:line_no) }, class_name: "PurchaseOrderLine", inverse_of: :purchase_order,
                                             dependent: :destroy
+  has_many :goods_receipts, dependent: :restrict_with_error
 
   validates_same_tenant :requisition, :supplier, :created_by
   validates :number, presence: true

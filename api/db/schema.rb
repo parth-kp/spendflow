@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_18_071609) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_18_074232) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -84,6 +84,31 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_18_071609) do
     t.datetime "updated_at", null: false
     t.index ["company_id", "code"], name: "index_departments_on_company_id_and_code", unique: true
     t.index ["company_id"], name: "index_departments_on_company_id"
+  end
+
+  create_table "goods_receipt_lines", force: :cascade do |t|
+    t.bigint "goods_receipt_id", null: false
+    t.bigint "purchase_order_line_id", null: false
+    t.decimal "quantity", precision: 12, scale: 3, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["goods_receipt_id"], name: "index_goods_receipt_lines_on_goods_receipt_id"
+    t.index ["purchase_order_line_id"], name: "index_goods_receipt_lines_on_purchase_order_line_id"
+  end
+
+  create_table "goods_receipts", force: :cascade do |t|
+    t.bigint "company_id", null: false
+    t.bigint "purchase_order_id", null: false
+    t.bigint "received_by_id", null: false
+    t.string "number", null: false
+    t.date "received_on", null: false
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["company_id", "number"], name: "index_goods_receipts_on_company_id_and_number", unique: true
+    t.index ["company_id"], name: "index_goods_receipts_on_company_id"
+    t.index ["purchase_order_id"], name: "index_goods_receipts_on_purchase_order_id"
+    t.index ["received_by_id"], name: "index_goods_receipts_on_received_by_id"
   end
 
   create_table "notifications", force: :cascade do |t|
@@ -223,6 +248,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_18_071609) do
   add_foreign_key "audit_events", "companies"
   add_foreign_key "audit_events", "users", column: "actor_id"
   add_foreign_key "departments", "companies"
+  add_foreign_key "goods_receipt_lines", "goods_receipts", on_delete: :cascade
+  add_foreign_key "goods_receipt_lines", "purchase_order_lines"
+  add_foreign_key "goods_receipts", "companies"
+  add_foreign_key "goods_receipts", "purchase_orders"
+  add_foreign_key "goods_receipts", "users", column: "received_by_id"
   add_foreign_key "notifications", "companies"
   add_foreign_key "notifications", "users"
   add_foreign_key "number_sequences", "companies"
