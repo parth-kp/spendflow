@@ -1,6 +1,7 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    Ascii85 (2.0.1)
     aasm (5.5.2)
       concurrent-ruby (~> 1.0)
     action_text-trix (2.1.19)
@@ -81,6 +82,7 @@ GEM
       rails (>= 6.0)
     addressable (2.9.2)
       public_suffix (>= 2.0.2, < 8.0)
+    afm (1.0.1)
     ast (2.4.3)
     base64 (0.3.0)
     bcrypt (3.1.22)
@@ -118,6 +120,12 @@ GEM
       railties (>= 6.1.0)
     faker (3.8.0)
       i18n (>= 1.8.11, < 2)
+    faraday (2.15.1)
+      faraday-net_http (>= 2.0, < 3.6)
+      json
+      logger
+    faraday-net_http (3.5.0)
+      net-http (~> 0.5)
     ffi (1.17.4-aarch64-linux-gnu)
     ffi (1.17.4-aarch64-linux-musl)
     ffi (1.17.4-arm-linux-gnu)
@@ -129,6 +137,7 @@ GEM
     globalid (1.4.0)
       activesupport (>= 6.1)
     hashdiff (1.2.1)
+    hashery (2.1.2)
     i18n (1.15.2)
       concurrent-ruby (~> 1.0)
     image_processing (1.14.0)
@@ -163,6 +172,9 @@ GEM
       drb (~> 2.0)
       prism (~> 1.5)
     msgpack (1.8.7)
+    net-http (0.10.0)
+      net-protocol (>= 0.3.0)
+      uri (>= 0.11.1)
     net-imap (0.6.8)
       date
       net-protocol
@@ -193,6 +205,11 @@ GEM
     parser (3.3.13.0)
       ast (~> 2.4.1)
       racc
+    pdf-reader (2.16.0)
+      Ascii85 (>= 1.0, < 3.0, != 2.0.0)
+      afm (>= 0.2.1, < 2)
+      hashery (~> 2.0)
+      ttfunk
     pg (1.7.0)
     pg (1.7.0-aarch64-linux)
     pg (1.7.0-aarch64-linux-musl)
@@ -329,6 +346,7 @@ GEM
     thor (1.5.0)
     timeout (0.6.1)
     tsort (0.2.0)
+    ttfunk (1.7.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     unicode-display_width (3.3.0)
@@ -369,8 +387,10 @@ DEPENDENCIES
   dotenv-rails
   factory_bot_rails
   faker
+  faraday (~> 2.12)
   image_processing (~> 1.2)
   jwt (~> 2.9)
+  pdf-reader (~> 2.14)
   pg (~> 1.1)
   puma (>= 5.0)
   pundit (~> 2.4)
