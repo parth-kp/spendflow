@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_18_090251) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_19_043938) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -137,6 +137,53 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_18_090251) do
     t.index ["company_id"], name: "index_goods_receipts_on_company_id"
     t.index ["purchase_order_id"], name: "index_goods_receipts_on_purchase_order_id"
     t.index ["received_by_id"], name: "index_goods_receipts_on_received_by_id"
+  end
+
+  create_table "invoice_lines", force: :cascade do |t|
+    t.bigint "invoice_id", null: false
+    t.bigint "purchase_order_line_id"
+    t.integer "position", default: 0, null: false
+    t.string "description", null: false
+    t.decimal "quantity", precision: 12, scale: 3, default: "0.0", null: false
+    t.decimal "unit_price", precision: 14, scale: 2, default: "0.0", null: false
+    t.decimal "amount", precision: 14, scale: 2, default: "0.0", null: false
+    t.string "match_status"
+    t.jsonb "match_notes", default: [], null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["invoice_id"], name: "index_invoice_lines_on_invoice_id"
+    t.index ["purchase_order_line_id"], name: "index_invoice_lines_on_purchase_order_line_id"
+  end
+
+  create_table "invoices", force: :cascade do |t|
+    t.bigint "company_id", null: false
+    t.bigint "supplier_id"
+    t.bigint "purchase_order_id"
+    t.bigint "uploaded_by_id", null: false
+    t.bigint "approved_by_id"
+    t.string "invoice_number"
+    t.date "invoice_date"
+    t.date "due_date"
+    t.string "currency"
+    t.decimal "subtotal", precision: 14, scale: 2
+    t.decimal "tax_amount", precision: 14, scale: 2, default: "0.0"
+    t.decimal "total_amount", precision: 14, scale: 2
+    t.string "status", default: "uploaded", null: false
+    t.string "source", default: "upload", null: false
+    t.jsonb "extraction", default: {}, null: false
+    t.string "extraction_error"
+    t.jsonb "match_result", default: {}, null: false
+    t.decimal "match_confidence", precision: 5, scale: 4
+    t.datetime "matched_at"
+    t.datetime "approved_at"
+    t.datetime "paid_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["approved_by_id"], name: "index_invoices_on_approved_by_id"
+    t.index ["company_id"], name: "index_invoices_on_company_id"
+    t.index ["purchase_order_id"], name: "index_invoices_on_purchase_order_id"
+    t.index ["supplier_id"], name: "index_invoices_on_supplier_id"
+    t.index ["uploaded_by_id"], name: "index_invoices_on_uploaded_by_id"
   end
 
   create_table "notifications", force: :cascade do |t|
@@ -283,6 +330,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_18_090251) do
   add_foreign_key "goods_receipts", "companies"
   add_foreign_key "goods_receipts", "purchase_orders"
   add_foreign_key "goods_receipts", "users", column: "received_by_id"
+  add_foreign_key "invoice_lines", "invoices", on_delete: :cascade
+  add_foreign_key "invoice_lines", "purchase_order_lines", on_delete: :nullify
+  add_foreign_key "invoices", "companies"
+  add_foreign_key "invoices", "purchase_orders"
+  add_foreign_key "invoices", "suppliers"
+  add_foreign_key "invoices", "users", column: "approved_by_id"
+  add_foreign_key "invoices", "users", column: "uploaded_by_id"
   add_foreign_key "notifications", "companies"
   add_foreign_key "notifications", "users"
   add_foreign_key "number_sequences", "companies"
