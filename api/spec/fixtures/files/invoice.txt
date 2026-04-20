@@ -1,0 +1,14 @@
+NORTHWIND TRADERS
+From: Northwind Traders
+Invoice No: NW-1042
+Invoice Date: 2026-10-14
+Due Date: 2026-11-13
+Currency: USD
+Your order: PO-00001
+
+A4 copy paper box   10 x $30.00
+Laser toner cartridge black   4 x $90.00
+
+Subtotal: $660.00
+Tax (0%): $0.00
+Total: $660.00
