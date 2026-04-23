@@ -82,4 +82,15 @@ RSpec.describe "Requisitions" do
     post "/api/v1/requisitions", params: payload, headers: auth_headers(employee)
     expect(response).to have_http_status(:unprocessable_content)
   end
+
+  it "lists the approver's inbox" do
+    req = create(:requisition, company: company, requester: employee, department: dept)
+    Approvals::Workflow.new(req, actor: employee).submit!
+
+    get "/api/v1/requisitions/inbox", headers: auth_headers(manager)
+    expect(json.pluck("id")).to eq([req.id])
+
+    get "/api/v1/requisitions/inbox", headers: auth_headers(finance)
+    expect(json).to be_empty
+  end
 end

@@ -6,6 +6,7 @@ Rails.application.routes.draw do
       resource :session, only: %i[create show]
       resources :suppliers
       resources :requisitions do
+        get :inbox, on: :collection
         member do
           post :submit
           post :approve

@@ -1,7 +1,13 @@
 module Api
   module V1
     class RequisitionsController < ApplicationController
-      before_action :load_requisition, except: %i[index create]
+      before_action :load_requisition, except: %i[index create inbox]
+
+      def inbox
+        authorize Requisition, :index?
+        scope = ApprovalInboxQuery.new(current_user, scope: policy_scope(Requisition)).call
+        render json: RequisitionSerializer.collection(paginate(scope.includes(:requester, :department, :supplier).order(:submitted_at)))
+      end
 
       def index
         scope = policy_scope(Requisition).includes(:requester, :department, :supplier)
