@@ -14,6 +14,16 @@ Rails.application.routes.draw do
           post :revise
         end
       end
+      resources :invoices, only: %i[index show create update] do
+        member do
+          get :document
+          post :rematch
+          post :reprocess
+          post :approve
+          post :reject
+          post :pay
+        end
+      end
       resources :purchase_orders, only: %i[index show create] do
         member do
           post :receive
