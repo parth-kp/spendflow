@@ -20,6 +20,8 @@ class Invoice < ApplicationRecord
   validates :invoice_number, uniqueness: { scope: %i[company_id supplier_id], allow_blank: true }
   validate :document_is_acceptable
 
+  before_save :recalculate_totals, if: -> { lines.any? }
+
   aasm column: :status, whiny_persistence: true do
     state :uploaded, initial: true
     state :processing, :extraction_failed, :extracted, :matched, :exception, :approved, :rejected, :paid
