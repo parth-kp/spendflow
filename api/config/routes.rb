@@ -5,6 +5,11 @@ Rails.application.routes.draw do
     namespace :v1 do
       resource :session, only: %i[create show]
       resources :suppliers
+      resources :departments, only: %i[index create update destroy]
+      resources :users, only: %i[index show create update]
+      resources :approval_rules, only: %i[index create update destroy] do
+        get :preview, on: :collection
+      end
       resources :requisitions do
         get :inbox, on: :collection
         member do
