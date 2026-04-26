@@ -3,7 +3,10 @@ module Extraction
     class Error < StandardError; end
 
     ENDPOINT = "https://openrouter.ai/api/v1/chat/completions".freeze
-    DEFAULT_MODEL = "openai/gpt-4o-mini".freeze
+    TEXT_MODEL = "openai/gpt-4o-mini".freeze
+    # gpt-4o-mini returned empty fields for rendered invoice images in testing;
+    # Gemini Flash reads scans and raw PDFs reliably, at the cost of latency.
+    VISION_MODEL = "google/gemini-2.5-flash".freeze
 
     SYSTEM_PROMPT = <<~PROMPT.freeze
       You extract structured data from supplier invoices for an accounts payable team.
@@ -18,13 +21,17 @@ module Extraction
       ENV["OPENROUTER_API_KEY"].present?
     end
 
-    def initialize(api_key: ENV.fetch("OPENROUTER_API_KEY"), model: ENV.fetch("OPENROUTER_MODEL", DEFAULT_MODEL))
+    def initialize(api_key: ENV.fetch("OPENROUTER_API_KEY"),
+                   text_model: ENV.fetch("OPENROUTER_TEXT_MODEL", TEXT_MODEL),
+                   vision_model: ENV.fetch("OPENROUTER_VISION_MODEL", VISION_MODEL))
       @api_key = api_key
-      @model = model
+      @text_model = text_model
+      @vision_model = vision_model
     end
 
     def call(payload)
-      response = connection.post(ENDPOINT, request_body(payload))
+      model = payload.text? ? text_model : vision_model
+      response = connection.post(ENDPOINT, request_body(payload, model))
       raise Error, "OpenRouter returned #{response.status}: #{response.body.to_s[0, 300]}" unless response.success?
 
       content = response.body.dig("choices", 0, "message", "content")
@@ -39,9 +46,9 @@ module Extraction
 
     private
 
-    attr_reader :api_key, :model
+    attr_reader :api_key, :text_model, :vision_model
 
-    def request_body(payload)
+    def request_body(payload, model)
       {
         model: model,
         temperature: 0,
@@ -76,7 +83,7 @@ module Extraction
       Faraday.new do |f|
         f.request :json
         f.response :json
-        f.options.timeout = 60
+        f.options.timeout = 90
         f.options.open_timeout = 5
         f.headers["Authorization"] = "Bearer #{api_key}"
         f.headers["HTTP-Referer"] = ENV.fetch("APP_URL", "http://localhost:5173")

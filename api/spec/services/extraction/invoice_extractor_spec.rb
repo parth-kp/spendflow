@@ -21,7 +21,7 @@ RSpec.describe Extraction::InvoiceExtractor do
   end
 
   context "with OpenRouter" do
-    let(:backend) { Extraction::OpenRouterExtractor.new(api_key: "test-key", model: "openai/gpt-4o-mini") }
+    let(:backend) { Extraction::OpenRouterExtractor.new(api_key: "test-key") }
     let(:model_json) do
       { supplier_name: "Northwind Traders", invoice_number: "NW-1042", invoice_date: "2026-10-14",
         due_date: "2026-11-13", currency: "USD", po_number: "PO-00001", subtotal: 660, tax_amount: 0,
@@ -44,6 +44,21 @@ RSpec.describe Extraction::InvoiceExtractor do
       expect(stub).to have_been_requested
       expect(result.source).to eq("openrouter:openai/gpt-4o-mini")
       expect(result["confidence"]).to eq(0.93)
+    end
+
+    it "sends images to the vision model" do
+      invoice.document.attach(io: StringIO.new("\x89PNG fake"), filename: "scan.png", content_type: "image/png")
+      stub = stub_request(:post, Extraction::OpenRouterExtractor::ENDPOINT)
+             .with { |req|
+               body = JSON.parse(req.body)
+               body["model"] == "google/gemini-2.5-flash" &&
+                 body["messages"].last["content"].last["image_url"]["url"].start_with?("data:image/png;base64,")
+             }
+             .to_return(status: 200, headers: { "Content-Type" => "application/json" },
+                        body: { choices: [{ message: { content: model_json.to_json } }] }.to_json)
+
+      described_class.new(invoice, backend: backend).call
+      expect(stub).to have_been_requested
     end
 
     it "wraps API failures" do
