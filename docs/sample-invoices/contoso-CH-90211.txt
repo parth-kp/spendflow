@@ -1,0 +1,22 @@
+CONTOSO HARDWARE
+1200 Harbor Way, Seattle WA 98101
+billing@northwind.test
+
+From: Contoso Hardware Inc.
+Bill to: Acme Corp, Accounts Payable
+
+Invoice No: CH-90211
+Invoice Date: 2026-10-14
+Due Date: 2026-11-13
+Currency: USD
+Your order: PO-00003
+
+Description                         Qty     Unit price
+27in 4K monitor                     6 x $395.00
+Monitor arm                         6 x $95.00
+
+Subtotal: $2940.00
+Tax (0%): $0.00
+Total: $2940.00
+
+Payment by ACH to account ending 4421. Thank you for your business.

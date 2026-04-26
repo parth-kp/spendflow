@@ -1,0 +1,22 @@
+NORTHWIND TRADERS
+1200 Harbor Way, Seattle WA 98101
+billing@northwind.test
+
+From: Northwind Traders
+Bill to: Acme Corp, Accounts Payable
+
+Invoice No: NW-1042
+Invoice Date: 2026-10-14
+Due Date: 2026-11-13
+Currency: USD
+Your order: PO-00001
+
+Description                         Qty     Unit price
+A4 copy paper box                   10 x $30.00
+Laser toner cartridge black         4 x $90.00
+
+Subtotal: $660.00
+Tax (0%): $0.00
+Total: $660.00
+
+Payment by ACH to account ending 4421. Thank you for your business.
