@@ -8,7 +8,7 @@ default: &default
 
 development:
   <<: *default
-  database: spendflow_development
+  database: <%= ENV.fetch("DATABASE_NAME", "spendflow_development") %>
 
 test:
   <<: *default
