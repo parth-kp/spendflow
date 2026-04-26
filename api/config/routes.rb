@@ -4,6 +4,11 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resource :session, only: %i[create show]
+      resource :dashboard, only: :show, controller: :dashboard
+      resources :notifications, only: %i[index update] do
+        post :read_all, on: :collection
+      end
+      resources :audit_events, only: :index
       resources :suppliers
       resources :departments, only: %i[index create update destroy]
       resources :users, only: %i[index show create update]
