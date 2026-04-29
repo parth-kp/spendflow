@@ -10,9 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_19_043938) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_29_145752) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+  enable_extension "pg_trgm"
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -72,8 +73,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_19_043938) do
     t.datetime "updated_at", null: false
     t.index ["approval_rule_id"], name: "index_approval_steps_on_approval_rule_id"
     t.index ["approver_id"], name: "index_approval_steps_on_approver_id"
+    t.index ["company_id", "approver_role", "requisition_id"], name: "idx_approval_steps_pending_by_role", where: "((status)::text = 'pending'::text)"
     t.index ["company_id"], name: "index_approval_steps_on_company_id"
     t.index ["decided_by_id"], name: "index_approval_steps_on_decided_by_id"
+    t.index ["requisition_id", "level"], name: "idx_approval_steps_pending_by_requisition", where: "((status)::text = 'pending'::text)"
     t.index ["requisition_id", "level"], name: "index_approval_steps_on_requisition_id_and_level", unique: true
     t.index ["requisition_id"], name: "index_approval_steps_on_requisition_id"
   end
@@ -90,6 +93,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_19_043938) do
     t.datetime "created_at", null: false
     t.index ["actor_id"], name: "index_audit_events_on_actor_id"
     t.index ["auditable_type", "auditable_id"], name: "index_audit_events_on_auditable"
+    t.index ["company_id", "created_at", "id"], name: "idx_audit_events_company_created", order: { created_at: :desc, id: :desc }
     t.index ["company_id"], name: "index_audit_events_on_company_id"
   end
 
@@ -180,6 +184,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_19_043938) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["approved_by_id"], name: "index_invoices_on_approved_by_id"
+    t.index ["company_id", "status", "created_at"], name: "idx_invoices_company_status_created", order: { created_at: :desc }
     t.index ["company_id"], name: "index_invoices_on_company_id"
     t.index ["purchase_order_id"], name: "index_invoices_on_purchase_order_id"
     t.index ["supplier_id"], name: "index_invoices_on_supplier_id"
@@ -199,6 +204,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_19_043938) do
     t.datetime "updated_at", null: false
     t.index ["company_id"], name: "index_notifications_on_company_id"
     t.index ["subject_type", "subject_id"], name: "index_notifications_on_subject"
+    t.index ["user_id"], name: "idx_notifications_unread", where: "(read_at IS NULL)"
     t.index ["user_id"], name: "index_notifications_on_user_id"
   end
 
@@ -244,6 +250,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_19_043938) do
     t.index ["company_id"], name: "index_purchase_orders_on_company_id"
     t.index ["created_by_id"], name: "index_purchase_orders_on_created_by_id"
     t.index ["requisition_id"], name: "index_purchase_orders_on_requisition_id", unique: true
+    t.index ["supplier_id", "status"], name: "idx_purchase_orders_supplier_status"
     t.index ["supplier_id"], name: "index_purchase_orders_on_supplier_id"
   end
 
@@ -276,11 +283,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_19_043938) do
     t.datetime "rejected_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["company_id", "approved_at"], name: "idx_requisitions_approved_spend", where: "((status)::text = ANY ((ARRAY['approved'::character varying, 'ordered'::character varying])::text[]))", include: ["department_id", "total_amount"]
     t.index ["company_id", "number"], name: "index_requisitions_on_company_id_and_number", unique: true
+    t.index ["company_id", "status", "created_at"], name: "idx_requisitions_company_status_created", order: { created_at: :desc }
+    t.index ["company_id", "submitted_at"], name: "idx_requisitions_pending_submitted", where: "((status)::text = 'pending_approval'::text)"
     t.index ["company_id"], name: "index_requisitions_on_company_id"
+    t.index ["department_id", "created_at"], name: "idx_requisitions_department_created", order: { created_at: :desc }
     t.index ["department_id"], name: "index_requisitions_on_department_id"
+    t.index ["number"], name: "idx_requisitions_number_trgm", opclass: :gin_trgm_ops, using: :gin
+    t.index ["requester_id", "created_at"], name: "idx_requisitions_requester_created", order: { created_at: :desc }
     t.index ["requester_id"], name: "index_requisitions_on_requester_id"
     t.index ["supplier_id"], name: "index_requisitions_on_supplier_id"
+    t.index ["title"], name: "idx_requisitions_title_trgm", opclass: :gin_trgm_ops, using: :gin
   end
 
   create_table "suppliers", force: :cascade do |t|
