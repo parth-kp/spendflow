@@ -1,0 +1,126 @@
+{
+  "label": "baseline",
+  "measured_at": "2026-11-06T07:00:49Z",
+  "postgres": "16.15 (Postgres.app)",
+  "rows": {
+    "requisitions": 400000,
+    "approval_steps": 646602,
+    "audit_events": 1600000,
+    "notifications": 400000,
+    "invoices": 120000
+  },
+  "results": [
+    {
+      "name": "requisitions: my list",
+      "median_ms": 0.17,
+      "max_ms": 0.32,
+      "plan": "Sort → Bitmap Heap Scan on requisitions → Bitmap Index Scan (index_requisitions_on_requester_id)",
+      "sql": "SELECT \"requisitions\".* FROM \"requisitions\" WHERE \"requisitions\".\"company_id\" = 1 AND \"requisitions\".\"requester_id\" = 110 AND \"requisitions\".\"requester_id\" = 110 ORDER BY \"requisitions\".\"created_at\" DESC LIMIT 25 OFFSET 0"
+    },
+    {
+      "name": "requisitions: my list count",
+      "median_ms": 0.14,
+      "max_ms": 0.14,
+      "plan": "Bitmap Heap Scan on requisitions → Bitmap Index Scan (index_requisitions_on_requester_id)",
+      "sql": "SELECT count(*) FROM \"requisitions\" WHERE \"requisitions\".\"company_id\" = 1 AND \"requisitions\".\"requester_id\" = 110 AND \"requisitions\".\"requester_id\" = 110"
+    },
+    {
+      "name": "requisitions: manager list",
+      "median_ms": 5.57,
+      "max_ms": 6.26,
+      "plan": "Sort → Bitmap Heap Scan on requisitions → Bitmap Index Scan (index_requisitions_on_requester_id) → Bitmap Index Scan (index_requisitions_on_department_id)",
+      "sql": "SELECT \"requisitions\".* FROM \"requisitions\" WHERE \"requisitions\".\"company_id\" = 1 AND (\"requisitions\".\"requester_id\" = 2 OR \"requisitions\".\"department_id\" = 3) ORDER BY \"requisitions\".\"created_at\" DESC LIMIT 25 OFFSET 0"
+    },
+    {
+      "name": "requisitions: pending (finance)",
+      "median_ms": 10.86,
+      "max_ms": 11.89,
+      "plan": "Sort → Seq Scan on requisitions",
+      "sql": "SELECT \"requisitions\".* FROM \"requisitions\" WHERE \"requisitions\".\"company_id\" = 1 AND \"requisitions\".\"status\" = 'pending_approval' ORDER BY \"requisitions\".\"created_at\" DESC LIMIT 25 OFFSET 0"
+    },
+    {
+      "name": "requisitions: search title",
+      "median_ms": 48.65,
+      "max_ms": 52.69,
+      "plan": "Sort → Seq Scan on requisitions",
+      "sql": "SELECT \"requisitions\".* FROM \"requisitions\" WHERE \"requisitions\".\"company_id\" = 1 AND (requisitions.title ILIKE '%monitors batch 12345%' OR requisitions.number ILIKE '%monitors batch 12345%') ORDER BY \"requisitions\".\"created_at\" DESC LIMIT 25 OFFSET 0"
+    },
+    {
+      "name": "approval inbox: manager",
+      "median_ms": 28.26,
+      "max_ms": 30.1,
+      "plan": "Sort → Seq Scan on requisitions → Seq Scan on approval_steps → Bitmap Heap Scan on requisitions",
+      "sql": "SELECT \"requisitions\".* FROM \"requisitions\" WHERE \"requisitions\".\"company_id\" = 1 AND \"requisitions\".\"status\" = 'pending_approval' AND \"requisitions\".\"requester_id\" != 2 AND \"requisitions\".\"id\" IN (SELECT \"approval_steps\".\"requisition_id\" FROM \"approval_steps\" WHERE \"approval_steps\".\"company_id\" = 1 AND \"approval_steps\".\"status\" = 'pending' AND \"approval_steps\".\"company_id\" = 1 AND (NOT EXISTS ( SELECT 1 FROM approval_steps earlier WHERE earlier.requisition_id = approval_steps.requisition_id AND earlier.status = 'pending' AND earlier.level < approval_steps.level )) AND (\"approval_steps\".\"approver_id\" = 2 OR \"approval_steps\".\"approver_id\" IS NULL AND \"approval_steps\".\"approver_role\" = 'manager' AND \"approval_steps\".\"requisition_id\" IN (SELECT \"requisitions\".\"id\" FROM \"requisitions\" WHERE \"requisitions\".\"company_id\" = 1 AND \"requisitions\".\"department_id\" = 3))) ORDER BY \"requisitions\".\"submitted_at\" ASC LIMIT 25 OFFSET 0"
+    },
+    {
+      "name": "approval inbox: finance",
+      "median_ms": 12.46,
+      "max_ms": 13.83,
+      "plan": "Sort → Seq Scan on requisitions → Index Scan on approval_steps (index_approval_steps_on_requisition_id)",
+      "sql": "SELECT \"requisitions\".* FROM \"requisitions\" WHERE \"requisitions\".\"company_id\" = 1 AND \"requisitions\".\"status\" = 'pending_approval' AND \"requisitions\".\"requester_id\" != 13 AND \"requisitions\".\"id\" IN (SELECT \"approval_steps\".\"requisition_id\" FROM \"approval_steps\" WHERE \"approval_steps\".\"company_id\" = 1 AND \"approval_steps\".\"status\" = 'pending' AND \"approval_steps\".\"company_id\" = 1 AND (NOT EXISTS ( SELECT 1 FROM approval_steps earlier WHERE earlier.requisition_id = approval_steps.requisition_id AND earlier.status = 'pending' AND earlier.level < approval_steps.level )) AND (\"approval_steps\".\"approver_id\" = 13 OR \"approval_steps\".\"approver_id\" IS NULL AND \"approval_steps\".\"approver_role\" = 'finance')) ORDER BY \"requisitions\".\"submitted_at\" ASC LIMIT 25 OFFSET 0"
+    },
+    {
+      "name": "approval inbox: finance count",
+      "median_ms": 47.81,
+      "max_ms": 69.13,
+      "plan": "Seq Scan on requisitions → Seq Scan on approval_steps",
+      "sql": "SELECT count(*) FROM \"requisitions\" WHERE \"requisitions\".\"company_id\" = 1 AND \"requisitions\".\"status\" = 'pending_approval' AND \"requisitions\".\"requester_id\" != 13 AND \"requisitions\".\"id\" IN (SELECT \"approval_steps\".\"requisition_id\" FROM \"approval_steps\" WHERE \"approval_steps\".\"company_id\" = 1 AND \"approval_steps\".\"status\" = 'pending' AND \"approval_steps\".\"company_id\" = 1 AND (NOT EXISTS ( SELECT 1 FROM approval_steps earlier WHERE earlier.requisition_id = approval_steps.requisition_id AND earlier.status = 'pending' AND earlier.level < approval_steps.level )) AND (\"approval_steps\".\"approver_id\" = 13 OR \"approval_steps\".\"approver_id\" IS NULL AND \"approval_steps\".\"approver_role\" = 'finance'))"
+    },
+    {
+      "name": "audit trail: one record",
+      "median_ms": 0.02,
+      "max_ms": 0.04,
+      "plan": "Sort → Index Scan on audit_events (index_audit_events_on_auditable)",
+      "sql": "SELECT \"audit_events\".* FROM \"audit_events\" WHERE \"audit_events\".\"company_id\" = 1 AND \"audit_events\".\"auditable_id\" = 399411 AND \"audit_events\".\"auditable_type\" = 'Requisition' ORDER BY \"audit_events\".\"created_at\" ASC, \"audit_events\".\"id\" ASC"
+    },
+    {
+      "name": "audit log: company page",
+      "median_ms": 46.97,
+      "max_ms": 52.55,
+      "plan": "Sort → Seq Scan on audit_events",
+      "sql": "SELECT \"audit_events\".* FROM \"audit_events\" WHERE \"audit_events\".\"company_id\" = 1 ORDER BY \"audit_events\".\"created_at\" DESC, \"audit_events\".\"id\" DESC LIMIT 25 OFFSET 0"
+    },
+    {
+      "name": "notifications: unread count",
+      "median_ms": 0.14,
+      "max_ms": 0.34,
+      "plan": "Bitmap Heap Scan on notifications → Bitmap Index Scan (index_notifications_on_user_id)",
+      "sql": "SELECT count(*) FROM \"notifications\" WHERE \"notifications\".\"company_id\" = 1 AND \"notifications\".\"user_id\" = 110 AND \"notifications\".\"read_at\" IS NULL"
+    },
+    {
+      "name": "notifications: list",
+      "median_ms": 0.15,
+      "max_ms": 0.18,
+      "plan": "Sort → Bitmap Heap Scan on notifications → Bitmap Index Scan (index_notifications_on_user_id)",
+      "sql": "SELECT \"notifications\".* FROM \"notifications\" WHERE \"notifications\".\"company_id\" = 1 AND \"notifications\".\"user_id\" = 110 ORDER BY \"notifications\".\"created_at\" DESC LIMIT 25 OFFSET 0"
+    },
+    {
+      "name": "invoices: exceptions",
+      "median_ms": 7.76,
+      "max_ms": 8.39,
+      "plan": "Sort → Seq Scan on invoices",
+      "sql": "SELECT \"invoices\".* FROM \"invoices\" WHERE \"invoices\".\"company_id\" = 1 AND \"invoices\".\"status\" = 'exception' ORDER BY \"invoices\".\"created_at\" DESC LIMIT 25 OFFSET 0"
+    },
+    {
+      "name": "invoices: exceptions count",
+      "median_ms": 7.32,
+      "max_ms": 8.37,
+      "plan": "Seq Scan on invoices",
+      "sql": "SELECT count(*) FROM \"invoices\" WHERE \"invoices\".\"company_id\" = 1 AND \"invoices\".\"status\" = 'exception'"
+    },
+    {
+      "name": "dashboard: spend by department",
+      "median_ms": 17.79,
+      "max_ms": 19.73,
+      "plan": "Sort → Seq Scan on requisitions → Seq Scan on departments",
+      "sql": "SELECT departments.name, sum(total_amount) FROM \"requisitions\" INNER JOIN \"departments\" ON \"departments\".\"company_id\" = 1 AND \"departments\".\"id\" = \"requisitions\".\"department_id\" WHERE \"requisitions\".\"company_id\" = 1 AND \"requisitions\".\"status\" IN ('approved', 'ordered') AND \"requisitions\".\"approved_at\" >= '2026-08-08 07:00:47.008549' GROUP BY \"departments\".\"name\""
+    },
+    {
+      "name": "po finder: supplier candidates",
+      "median_ms": 0.25,
+      "max_ms": 0.41,
+      "plan": "Sort → Bitmap Heap Scan on purchase_orders → Bitmap Index Scan (index_purchase_orders_on_supplier_id)",
+      "sql": "SELECT \"purchase_orders\".* FROM \"purchase_orders\" WHERE \"purchase_orders\".\"company_id\" = 1 AND \"purchase_orders\".\"supplier_id\" = 112 AND \"purchase_orders\".\"status\" IN ('issued', 'partially_received', 'received') ORDER BY ABS(total_amount - 1234.0) LIMIT 5"
+    }
+  ]
+}
