@@ -7,6 +7,8 @@ class User < ApplicationRecord
 
   has_secure_password
 
+  has_many :requisitions_as_requester, class_name: "Requisition", foreign_key: :requester_id, inverse_of: :requester
+
   validates :name, presence: true
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :role, inclusion: { in: ROLES }
