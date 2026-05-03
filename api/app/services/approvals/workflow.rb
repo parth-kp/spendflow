@@ -18,6 +18,7 @@ module Approvals
           requisition.approve!
           audit(:auto_approved, reason: "no approval rule matched")
         end
+        requisition.sync_current_step!
       end
 
       requisition.approved? ? notify_requester("approved") : notify_current_approvers
@@ -34,6 +35,7 @@ module Approvals
         raise Error, "A comment is required when rejecting" if decision.to_s == "reject" && comment.blank?
 
         decision.to_s == "approve" ? approve_step!(step, comment) : reject_step!(step, comment)
+        requisition.sync_current_step!
       end
 
       after_decision_notifications
