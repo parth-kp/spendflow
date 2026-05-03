@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_29_145752) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_03_062504) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -283,11 +283,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_29_145752) do
     t.datetime "rejected_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "current_approver_role"
+    t.bigint "current_approver_id"
     t.index ["company_id", "approved_at"], name: "idx_requisitions_approved_spend", where: "((status)::text = ANY ((ARRAY['approved'::character varying, 'ordered'::character varying])::text[]))", include: ["department_id", "total_amount"]
+    t.index ["company_id", "current_approver_role", "department_id", "submitted_at"], name: "idx_requisitions_inbox", where: "((status)::text = 'pending_approval'::text)"
     t.index ["company_id", "number"], name: "index_requisitions_on_company_id_and_number", unique: true
     t.index ["company_id", "status", "created_at"], name: "idx_requisitions_company_status_created", order: { created_at: :desc }
     t.index ["company_id", "submitted_at"], name: "idx_requisitions_pending_submitted", where: "((status)::text = 'pending_approval'::text)"
     t.index ["company_id"], name: "index_requisitions_on_company_id"
+    t.index ["current_approver_id", "submitted_at"], name: "idx_requisitions_inbox_named", where: "(((status)::text = 'pending_approval'::text) AND (current_approver_id IS NOT NULL))"
     t.index ["department_id", "created_at"], name: "idx_requisitions_department_created", order: { created_at: :desc }
     t.index ["department_id"], name: "index_requisitions_on_department_id"
     t.index ["number"], name: "idx_requisitions_number_trgm", opclass: :gin_trgm_ops, using: :gin
@@ -364,6 +368,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_29_145752) do
   add_foreign_key "requisitions", "companies"
   add_foreign_key "requisitions", "departments"
   add_foreign_key "requisitions", "suppliers"
+  add_foreign_key "requisitions", "users", column: "current_approver_id"
   add_foreign_key "requisitions", "users", column: "requester_id"
   add_foreign_key "suppliers", "companies"
   add_foreign_key "users", "companies"
