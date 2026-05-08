@@ -5,6 +5,8 @@ import { Layout } from './components/Layout'
 import { Loading } from './components/ui'
 import type { Role } from './lib/types'
 import { Login } from './pages/Login'
+import { Overview } from './pages/Overview'
+import { Requisitions } from './pages/Requisitions'
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth()
@@ -33,7 +35,8 @@ export function App() {
           </RequireAuth>
         }
       >
-        <Route index element={<p>Overview</p>} />
+        <Route index element={<Overview />} />
+        <Route path="requisitions" element={<Requisitions />} />
         <Route path="*" element={<p className="py-16 text-center text-ink-soft">That page does not exist.</p>} />
       </Route>
     </Routes>
