@@ -46,20 +46,24 @@
 }
 
 @layer components {
-  .btn {
+  .btn,
+  .btn-primary,
+  .btn-approve,
+  .btn-reject,
+  .btn-quiet {
     @apply inline-flex items-center justify-center gap-2 rounded-md px-3.5 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50;
   }
   .btn-primary {
-    @apply btn bg-ink text-white hover:bg-carbon;
+    @apply bg-ink text-white hover:bg-carbon;
   }
   .btn-approve {
-    @apply btn bg-approve text-white hover:brightness-110;
+    @apply bg-approve text-white hover:brightness-110;
   }
   .btn-reject {
-    @apply btn border border-reject/40 bg-white text-reject hover:bg-reject-tint;
+    @apply border border-reject/40 bg-white text-reject hover:bg-reject-tint;
   }
   .btn-quiet {
-    @apply btn border border-rule bg-white text-ink hover:border-ink-faint;
+    @apply border border-rule bg-white text-ink hover:border-ink-faint;
   }
 
   .field {
@@ -83,5 +87,18 @@
   }
   .num {
     @apply text-right tabular-nums;
+  }
+}
+
+.stamp {
+  mix-blend-mode: multiply;
+  animation: stamp-in 260ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+  mask-image: radial-gradient(circle at 30% 40%, #000 60%, rgb(0 0 0 / 0.82) 100%);
+}
+
+@keyframes stamp-in {
+  from {
+    opacity: 0;
+    transform: rotate(-4deg) scale(1.35);
   }
 }
