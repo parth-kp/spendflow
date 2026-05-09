@@ -41,4 +41,10 @@ RSpec.describe "Administration" do
     get "/api/v1/departments", headers: auth_headers(employee)
     expect(json.first).to include("code" => dept.code, "user_count" => 1)
   end
+
+  it "lets anyone preview who will approve an amount" do
+    create(:approval_rule, company: company, name: "Mgr", level: 1, approver_role: "manager")
+    get "/api/v1/approval_rules/preview", headers: auth_headers(employee), params: { amount: 100 }
+    expect(json.pluck("name")).to eq(%w[Mgr])
+  end
 end

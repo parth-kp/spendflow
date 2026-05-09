@@ -24,7 +24,7 @@ module Api
       end
 
       def preview
-        authorize ApprovalRule, :index?
+        authorize ApprovalRule, :preview?
         department = params[:department_id].present? ? Department.find(params[:department_id]) : nil
         chain = ApprovalRule.chain_for(department: department, amount: params.require(:amount).to_d)
         render json: chain.map { |r| serialize(r) }
