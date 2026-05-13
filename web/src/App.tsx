@@ -4,8 +4,11 @@ import { useAuth } from './auth'
 import { Layout } from './components/Layout'
 import { Loading } from './components/ui'
 import type { Role } from './lib/types'
+import { Approvals } from './pages/Approvals'
 import { Login } from './pages/Login'
 import { Overview } from './pages/Overview'
+import { PurchaseOrderDetail } from './pages/PurchaseOrderDetail'
+import { PurchaseOrders } from './pages/PurchaseOrders'
 import { RequisitionDetail } from './pages/RequisitionDetail'
 import { RequisitionForm } from './pages/RequisitionForm'
 import { Requisitions } from './pages/Requisitions'
@@ -42,6 +45,9 @@ export function App() {
         <Route path="requisitions/new" element={<RequisitionForm />} />
         <Route path="requisitions/:id" element={<RequisitionDetail />} />
         <Route path="requisitions/:id/edit" element={<RequisitionForm />} />
+        <Route path="approvals" element={<Approvals />} />
+        <Route path="purchase-orders" element={<PurchaseOrders />} />
+        <Route path="purchase-orders/:id" element={<PurchaseOrderDetail />} />
         <Route path="*" element={<p className="py-16 text-center text-ink-soft">That page does not exist.</p>} />
       </Route>
     </Routes>
