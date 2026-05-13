@@ -1,6 +1,6 @@
 {
   "label": "indexed",
-  "measured_at": "2026-11-06T07:01:22Z",
+  "measured_at": "2026-03-06T07:01:22Z",
   "postgres": "16.15 (Postgres.app)",
   "rows": {
     "requisitions": 400000,

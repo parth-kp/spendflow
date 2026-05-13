@@ -23,8 +23,8 @@ RSpec.describe Extraction::InvoiceExtractor do
   context "with OpenRouter" do
     let(:backend) { Extraction::OpenRouterExtractor.new(api_key: "test-key") }
     let(:model_json) do
-      { supplier_name: "Northwind Traders", invoice_number: "NW-1042", invoice_date: "2026-10-14",
-        due_date: "2026-11-13", currency: "USD", po_number: "PO-00001", subtotal: 660, tax_amount: 0,
+      { supplier_name: "Northwind Traders", invoice_number: "NW-1042", invoice_date: "2026-02-14",
+        due_date: "2026-03-13", currency: "USD", po_number: "PO-00001", subtotal: 660, tax_amount: 0,
         total_amount: 660, confidence: 0.93,
         line_items: [{ description: "A4 copy paper box", quantity: 10, unit_price: 30, amount: 300 }] }
     end

@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe Extraction::Result do
   let(:raw) do
-    { "supplier_name" => " Northwind Traders ", "invoice_number" => "INV-77", "invoice_date" => "2026-10-02",
+    { "supplier_name" => " Northwind Traders ", "invoice_number" => "INV-77", "invoice_date" => "2026-02-02",
       "due_date" => "Nov 1, 2026", "currency" => "$", "po_number" => "po-00003", "subtotal" => "1,200.00",
       "tax_amount" => 96, "total_amount" => 1296, "confidence" => 1.4,
       "line_items" => [{ "description" => "Chair", "quantity" => 4, "unit_price" => nil, "amount" => 1200 },
@@ -35,6 +35,6 @@ RSpec.describe Extraction::Result do
   end
 
   it "serializes to JSON-safe values" do
-    expect(result.to_h).to include("invoice_date" => "2026-10-02", "total_amount" => "1296.0", "source" => "test")
+    expect(result.to_h).to include("invoice_date" => "2026-02-02", "total_amount" => "1296.0", "source" => "test")
   end
 end

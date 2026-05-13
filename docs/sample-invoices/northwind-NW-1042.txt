@@ -6,8 +6,8 @@ From: Northwind Traders
 Bill to: Acme Corp, Accounts Payable
 
 Invoice No: NW-1042
-Invoice Date: 2026-10-14
-Due Date: 2026-11-13
+Invoice Date: 2026-02-14
+Due Date: 2026-03-13
 Currency: USD
 Your order: PO-00001
 
