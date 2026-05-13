@@ -6,6 +6,8 @@ import { Loading } from './components/ui'
 import type { Role } from './lib/types'
 import { Login } from './pages/Login'
 import { Overview } from './pages/Overview'
+import { RequisitionDetail } from './pages/RequisitionDetail'
+import { RequisitionForm } from './pages/RequisitionForm'
 import { Requisitions } from './pages/Requisitions'
 
 function RequireAuth({ children }: { children: ReactNode }) {
@@ -37,6 +39,9 @@ export function App() {
       >
         <Route index element={<Overview />} />
         <Route path="requisitions" element={<Requisitions />} />
+        <Route path="requisitions/new" element={<RequisitionForm />} />
+        <Route path="requisitions/:id" element={<RequisitionDetail />} />
+        <Route path="requisitions/:id/edit" element={<RequisitionForm />} />
         <Route path="*" element={<p className="py-16 text-center text-ink-soft">That page does not exist.</p>} />
       </Route>
     </Routes>
