@@ -5,6 +5,9 @@ import { Layout } from './components/Layout'
 import { Loading } from './components/ui'
 import type { Role } from './lib/types'
 import { Approvals } from './pages/Approvals'
+import { InvoiceDetail } from './pages/InvoiceDetail'
+import { InvoiceNew } from './pages/InvoiceNew'
+import { Invoices } from './pages/Invoices'
 import { Login } from './pages/Login'
 import { Overview } from './pages/Overview'
 import { PurchaseOrderDetail } from './pages/PurchaseOrderDetail'
@@ -48,6 +51,9 @@ export function App() {
         <Route path="approvals" element={<Approvals />} />
         <Route path="purchase-orders" element={<PurchaseOrders />} />
         <Route path="purchase-orders/:id" element={<PurchaseOrderDetail />} />
+        <Route path="invoices" element={<RequireRole roles={['finance', 'admin']}><Invoices /></RequireRole>} />
+        <Route path="invoices/new" element={<RequireRole roles={['finance', 'admin']}><InvoiceNew /></RequireRole>} />
+        <Route path="invoices/:id" element={<RequireRole roles={['finance', 'admin']}><InvoiceDetail /></RequireRole>} />
         <Route path="*" element={<p className="py-16 text-center text-ink-soft">That page does not exist.</p>} />
       </Route>
     </Routes>
