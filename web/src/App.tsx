@@ -4,6 +4,7 @@ import { useAuth } from './auth'
 import { Layout } from './components/Layout'
 import { Loading } from './components/ui'
 import type { Role } from './lib/types'
+import { ApprovalRules } from './pages/ApprovalRules'
 import { Approvals } from './pages/Approvals'
 import { AuditLog } from './pages/AuditLog'
 import { InvoiceDetail } from './pages/InvoiceDetail'
@@ -11,6 +12,7 @@ import { InvoiceNew } from './pages/InvoiceNew'
 import { Invoices } from './pages/Invoices'
 import { Login } from './pages/Login'
 import { Overview } from './pages/Overview'
+import { People } from './pages/People'
 import { PurchaseOrderDetail } from './pages/PurchaseOrderDetail'
 import { PurchaseOrders } from './pages/PurchaseOrders'
 import { RequisitionDetail } from './pages/RequisitionDetail'
@@ -58,6 +60,8 @@ export function App() {
         <Route path="invoices/:id" element={<RequireRole roles={['finance', 'admin']}><InvoiceDetail /></RequireRole>} />
         <Route path="suppliers" element={<Suppliers />} />
         <Route path="audit" element={<RequireRole roles={['finance', 'admin']}><AuditLog /></RequireRole>} />
+        <Route path="settings/rules" element={<RequireRole roles={['finance', 'admin']}><ApprovalRules /></RequireRole>} />
+        <Route path="settings/people" element={<RequireRole roles={['admin']}><People /></RequireRole>} />
         <Route path="*" element={<p className="py-16 text-center text-ink-soft">That page does not exist.</p>} />
       </Route>
     </Routes>
