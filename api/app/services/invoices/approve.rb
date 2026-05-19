@@ -10,6 +10,9 @@ module Invoices
 
     def call
       invoice.with_lock do
+        if (original = invoice.duplicate_of)
+          raise Error, "This looks like a duplicate of invoice ##{original.id}; reject one of them first"
+        end
         if invoice.exception? && comment.blank?
           raise Error, "Approving an invoice with match exceptions requires a comment"
         end

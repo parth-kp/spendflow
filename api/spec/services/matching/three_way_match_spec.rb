@@ -84,6 +84,17 @@ RSpec.describe Matching::ThreeWayMatch do
 
   it "is an exception when no PO is linked" do
     inv = create(:invoice, company: company)
-    expect(run(inv).checks.first[:name]).to eq("purchase_order")
+    expect(run(inv).checks.map { |c| c[:name] }).to include("purchase_order")
+  end
+
+  it "flags a duplicate of an earlier invoice" do
+    receive(paper, 10)
+    first = invoice_with({ description: "A4 copy paper box", quantity: 10, unit_price: 30 }, invoice_number: "NW-1")
+    second = invoice_with({ description: "A4 copy paper box", quantity: 10, unit_price: 30 }, invoice_number: "NW-1")
+
+    expect(run(first)).to be_matched
+    result = run(second)
+    expect(result.status).to eq("exception")
+    expect(result.checks.find { |c| c[:name] == "duplicate" }[:message]).to include("##{first.id}")
   end
 end

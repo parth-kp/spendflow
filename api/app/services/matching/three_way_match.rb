@@ -23,7 +23,7 @@ module Matching
     def call
       return no_po_result unless po
 
-      checks = header_checks
+      checks = [duplicate_check] + header_checks
       pairs = LinePairer.new(invoice.lines.to_a, po.lines.to_a).call
       line_results = invoice.lines.map { |line| evaluate_line(line, pairs[line]) }
 
@@ -39,7 +39,14 @@ module Matching
 
     def no_po_result
       Result.new(status: "exception", purchase_order_id: nil, lines: [],
-                 checks: [{ name: "purchase_order", passed: false, message: "No purchase order linked to this invoice" }])
+                 checks: [duplicate_check,
+                          { name: "purchase_order", passed: false, message: "No purchase order linked to this invoice" }])
+    end
+
+    def duplicate_check
+      original = invoice.duplicate_of
+      check("duplicate", original.nil?,
+            "Same supplier and invoice number as invoice ##{original&.id} (#{original&.status&.humanize&.downcase})")
     end
 
     def header_checks

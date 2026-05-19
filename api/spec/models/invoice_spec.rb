@@ -21,11 +21,16 @@ RSpec.describe Invoice do
     expect([inv.subtotal, inv.total_amount]).to eq([100, 110])
   end
 
-  it "prevents duplicate invoice numbers per supplier" do
+  it "detects duplicates by supplier and invoice number, ignoring rejected ones" do
     supplier = create(:supplier)
-    create(:invoice, company: supplier.company, supplier: supplier, invoice_number: "INV-9")
-    dup = build(:invoice, company: supplier.company, supplier: supplier, invoice_number: "INV-9")
-    expect(dup).not_to be_valid
+    original = create(:invoice, company: supplier.company, supplier: supplier, invoice_number: "INV-9")
+    dup = create(:invoice, company: supplier.company, supplier: supplier, invoice_number: "inv-9")
+
+    expect(dup.duplicate_of).to eq(original)
+    expect(create(:invoice, company: supplier.company, invoice_number: "INV-9").duplicate_of).to be_nil
+
+    original.update_columns(status: "rejected")
+    expect(dup.duplicate_of).to be_nil
   end
 
   it "follows the processing lifecycle" do

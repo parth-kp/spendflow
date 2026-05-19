@@ -17,7 +17,6 @@ class Invoice < ApplicationRecord
 
   validates_same_tenant :supplier, :purchase_order, :uploaded_by
   validates :source, inclusion: { in: %w[upload manual] }
-  validates :invoice_number, uniqueness: { scope: %i[company_id supplier_id], allow_blank: true }
   validate :document_is_acceptable
 
   before_save :recalculate_totals, if: -> { lines.any? }
@@ -57,6 +56,16 @@ class Invoice < ApplicationRecord
     event :mark_paid do
       transitions from: :approved, to: :paid, after: -> { self.paid_at = Time.current }
     end
+  end
+
+  # Duplicates are stored and flagged rather than refused, so a re-sent or
+  # re-scanned invoice still shows up for review instead of failing silently.
+  def duplicate_of
+    return if invoice_number.blank? || supplier_id.nil?
+
+    earlier = persisted? ? Invoice.where(id: ...id) : Invoice.all
+    earlier.where(supplier_id: supplier_id).where.not(status: "rejected")
+           .where("lower(invoice_number) = ?", invoice_number.downcase).order(:id).first
   end
 
   def matchable?

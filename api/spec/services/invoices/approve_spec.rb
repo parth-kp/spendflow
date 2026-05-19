@@ -27,4 +27,13 @@ RSpec.describe Invoices::Approve do
     described_class.new(invoice, actor: finance, comment: "Price increase agreed by phone").call
     expect(invoice.audit_events.last.metadata).to include("override" => true)
   end
+
+  it "never approves a duplicate, even with a justification" do
+    create(:invoice, company: po.company, supplier: po.supplier, invoice_number: "DUP-1")
+    invoice.update!(invoice_number: "DUP-1")
+    invoice.flag_exception!
+
+    expect { described_class.new(invoice, actor: finance, comment: "pay it").call }
+      .to raise_error(described_class::Error, /duplicate/)
+  end
 end
