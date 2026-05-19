@@ -11,6 +11,14 @@ RSpec.describe "Sessions" do
     expect(json.dig("user", "email")).to eq("pat@example.com")
   end
 
+  it "includes the department, which is tenant-scoped" do
+    user.update!(department: create(:department, company: user.company, name: "Ops"))
+    post "/api/v1/session", params: { email: "pat@example.com", password: "s3cretpass" }
+
+    expect(response).to have_http_status(:created)
+    expect(json.dig("user", "department", "name")).to eq("Ops")
+  end
+
   it "rejects a bad password" do
     post "/api/v1/session", params: { email: "pat@example.com", password: "nope" }
     expect(response).to have_http_status(:unauthorized)
