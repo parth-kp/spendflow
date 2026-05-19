@@ -22,14 +22,21 @@ class ProcessInvoiceJob < ApplicationJob
 
       MatchInvoiceJob.perform_later(company_id: company_id, invoice_id: invoice.id)
     end
+  rescue Extraction::InvoiceExtractor::Error
+    raise
+  rescue StandardError => e
+    # Anything unexpected: surface it on the invoice so finance can retry or
+    # enter it by hand, instead of leaving it stuck in "processing".
+    Rails.error.report(e, context: { invoice_id: invoice_id })
+    mark_failed(e)
   end
 
   def mark_failed(error)
     kwargs = arguments.first
     with_company(kwargs[:company_id]) do
       invoice = Invoice.find(kwargs[:invoice_id])
-      invoice.update!(extraction_error: error.message.truncate(500))
-      invoice.fail_extraction! if invoice.processing?
+      invoice.extraction_error = error.message.truncate(500)
+      invoice.processing? ? invoice.fail_extraction! : invoice.save!(validate: false)
       invoice.audit!(:extraction_failed, actor: nil, error: error.message.truncate(200))
     end
   end

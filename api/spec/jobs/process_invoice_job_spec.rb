@@ -49,4 +49,25 @@ RSpec.describe ProcessInvoiceJob do
     expect(invoice).to be_extraction_failed
     expect(invoice.extraction_error).to eq("boom")
   end
+
+  it "fails visibly on unexpected errors instead of hanging in processing" do
+    allow(Invoices::ApplyExtraction).to receive(:new).and_raise(ActiveRecord::StatementInvalid, "db hiccup")
+
+    described_class.perform_now(company_id: company.id, invoice_id: invoice.id)
+
+    expect(invoice.reload).to be_extraction_failed
+    expect(invoice.extraction_error).to include("db hiccup")
+  end
+
+  it "flags a re-uploaded copy as a duplicate rather than failing" do
+    perform_enqueued_jobs { described_class.perform_later(company_id: company.id, invoice_id: invoice.id) }
+
+    copy = build(:invoice, company: company, uploaded_by: finance, source: "upload")
+    copy.document.attach(io: file_fixture("invoice.txt").open, filename: "copy.txt", content_type: "text/plain")
+    copy.save!
+    perform_enqueued_jobs { described_class.perform_later(company_id: company.id, invoice_id: copy.id) }
+
+    expect(copy.reload).to be_exception
+    expect(copy.match_result["checks"].find { |c| c["name"] == "duplicate" }["passed"]).to be(false)
+  end
 end
