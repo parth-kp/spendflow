@@ -13,6 +13,7 @@ import { date, money } from '../lib/format'
 import type { InvoiceDetail as Inv, PurchaseOrderDetail } from '../lib/types'
 
 const CHECK_LABELS: Record<string, string> = {
+  duplicate: 'Not a duplicate of an earlier invoice',
   purchase_order: 'Linked to a purchase order',
   supplier: 'Same supplier as the PO',
   currency: 'Same currency as the PO',
