@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Schibsted Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Public Sans", ui-sans-serif, system-ui, sans-serif;
 
   --color-paper: #f5f7f6;
   --color-sheet: #ffffff;
@@ -84,7 +84,8 @@
   .table tbody tr {
     @apply hover:bg-paper/70;
   }
-  .num {
+  .num,
+  .table th.num {
     @apply text-right tabular-nums;
   }
 }
