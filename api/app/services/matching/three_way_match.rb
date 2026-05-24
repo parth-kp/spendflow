@@ -64,7 +64,7 @@ module Matching
       expected = line_results.sum { |l| l[:expected_amount].to_d }
       tolerance = expected * price_tolerance
       check("total", (billed - expected).abs <= [tolerance, 0.01].max,
-            "Invoice lines total #{fmt(billed)} vs #{fmt(expected)} expected from PO prices and received quantities")
+            "Invoice lines total #{money(billed)} vs #{money(expected)} expected from PO prices and received quantities")
     end
 
     def evaluate_line(line, po_line)
@@ -81,7 +81,7 @@ module Matching
       price_diff = po_line.unit_price.zero? ? line.unit_price : (line.unit_price - po_line.unit_price) / po_line.unit_price
       if price_diff.abs > price_tolerance
         status = "price_variance"
-        notes << "Unit price #{fmt(line.unit_price)} vs PO #{fmt(po_line.unit_price)} (#{pct(price_diff)})"
+        notes << "Unit price #{money(line.unit_price)} vs PO #{money(po_line.unit_price)} (#{pct(price_diff)})"
       end
 
       billable = [po_line.received_quantity - po_line.invoiced_quantity, 0].max
@@ -105,6 +105,7 @@ module Matching
     def price_tolerance = company.price_tolerance_pct.to_d / 100
     def quantity_tolerance = company.quantity_tolerance_pct.to_d / 100
     def fmt(d) = d.to_d.round(3).to_s("F")
+    def money(d) = format("%.2f", d.to_d)
     def pct(d) = "#{d.positive? ? '+' : ''}#{(d * 100).round(1).to_s('F')}%"
   end
 end
