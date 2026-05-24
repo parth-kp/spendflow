@@ -114,7 +114,7 @@ export function Layout() {
               <p className="font-semibold">{user.name}</p>
               <p className="text-xs text-ink-soft">
                 {user.role[0].toUpperCase() + user.role.slice(1)}
-                {user.department ? `, ${user.department.name}` : ''}
+                {user.department && user.department.name.toLowerCase() !== user.role ? `, ${user.department.name}` : ''}
               </p>
             </div>
             <button className="btn-quiet" onClick={signOut}>
