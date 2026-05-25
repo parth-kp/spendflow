@@ -4,7 +4,7 @@ export function money(value: string | number | null | undefined, currency = 'USD
   if (value === null || value === undefined || value === '') return '—'
   let fmt = moneyFormatters.get(currency)
   if (!fmt) {
-    fmt = new Intl.NumberFormat(undefined, { style: 'currency', currency, minimumFractionDigits: 2 })
+    fmt = new Intl.NumberFormat(undefined, { style: 'currency', currency, currencyDisplay: 'narrowSymbol', minimumFractionDigits: 2 })
     moneyFormatters.set(currency, fmt)
   }
   return fmt.format(Number(value))
