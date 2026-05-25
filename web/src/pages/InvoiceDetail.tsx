@@ -8,6 +8,7 @@ import { InvoiceEditor } from '../components/InvoiceEditor'
 import { MatchGrid } from '../components/MatchGrid'
 import { Stamp } from '../components/Stamp'
 import { ErrorNote, Field, Loading, PageHeader, Sheet, SheetTitle } from '../components/ui'
+import { useAuth } from '../auth'
 import { api } from '../lib/api'
 import { date, money } from '../lib/format'
 import type { InvoiceDetail as Inv, PurchaseOrderDetail } from '../lib/types'
@@ -26,6 +27,7 @@ const READING = ['uploaded', 'processing']
 export function InvoiceDetail() {
   const { id } = useParams()
   const qc = useQueryClient()
+  const { user } = useAuth()
   const [editing, setEditing] = useState(false)
   const [dialog, setDialog] = useState<'approve' | 'reject' | 'pay' | null>(null)
 
@@ -95,6 +97,11 @@ export function InvoiceDetail() {
           <span className="size-2 animate-pulse rounded-full bg-carbon" aria-hidden />
           Reading the invoice and looking for its purchase order. This usually takes a few seconds.
         </div>
+      )}
+      {(inv.status === 'matched' || inv.status === 'exception') && !p.approve && inv.uploaded_by.id === user?.id && (
+        <p className="mb-6 rounded-lg border border-rule bg-white px-4 py-3 text-sm text-ink-soft">
+          You added this invoice, so someone else in finance has to approve it for payment.
+        </p>
       )}
       {inv.status === 'extraction_failed' && (
         <div className="mb-6 rounded-lg border border-reject/30 bg-reject-tint px-4 py-3 text-sm text-reject">
