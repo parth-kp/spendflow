@@ -47,9 +47,17 @@ def seed_company(name:, currency:, people:, suppliers:)
   company
 end
 
+JUSTIFICATIONS = [
+  "Replacing equipment that is out of warranty.",
+  "Needed for the new starters joining next month.",
+  "Agreed in the quarterly planning review.",
+  "Current stock runs out in two weeks.",
+  "Customer project requires this before go-live."
+].freeze
+
 def requisition(requester, title, supplier, lines, days_ago: 0)
   req = Requisition.create!(requester: requester, title: title, supplier: supplier,
-                            justification: Faker::Company.bs.capitalize, needed_by: Date.current + rand(7..30),
+                            justification: JUSTIFICATIONS.sample, needed_by: Date.current + rand(7..30),
                             lines_attributes: lines.map { |d, q, p| { description: d, quantity: q, unit_price: p } })
   req.update_columns(created_at: days_ago.days.ago)
   req.audit!(:created, actor: requester)
