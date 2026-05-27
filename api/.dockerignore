@@ -1,0 +1,10 @@
+.git
+.env*
+!.env.example
+log/*
+tmp/*
+storage/*
+spec
+coverage
+node_modules
+config/master.key
