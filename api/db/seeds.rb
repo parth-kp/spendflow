@@ -4,9 +4,6 @@
 #   bin/rails db:seed            # idempotent: skips if demo companies exist
 #   bin/rails db:seed:replant    # wipe and reseed
 
-require "faker"
-
-Faker::Config.random = Random.new(42)
 srand(42)
 
 PASSWORD = "password123".freeze
@@ -39,7 +36,8 @@ def seed_company(name:, currency:, people:, suppliers:)
 
     supplier_records = suppliers.map do |s_name, terms|
       Supplier.create!(name: s_name, email: "ap@#{s_name.parameterize}.test", payment_terms_days: terms,
-                       tax_id: Faker::Company.ein, address: Faker::Address.full_address)
+                       tax_id: format("%02d-%07d", rand(10..99), rand(1_000_000..9_999_999)),
+                       address: "#{rand(100..9999)} #{%w[Market Harbor Pine Oak Mill].sample} Street")
     end
 
     yield company, users, depts, supplier_records if block_given?
