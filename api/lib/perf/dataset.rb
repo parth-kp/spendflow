@@ -3,8 +3,8 @@ module Perf
   # ~60% of the rows, as a large customer would on a shared database.
   class Dataset
     def initialize(companies:, requisitions:)
-      @companies = companies
-      @requisitions = requisitions
+      @companies = Integer(companies)
+      @requisitions = Integer(requisitions)
     end
 
     def generate!
