@@ -1,0 +1,64 @@
+x-api-env: &api-env
+  RAILS_ENV: production
+  DATABASE_URL: postgres://spendflow:spendflow@db:5432/spendflow
+  REDIS_URL: redis://redis:6379/0
+  SECRET_KEY_BASE: ${SECRET_KEY_BASE:-change-me-in-real-deployments-0123456789abcdef0123456789abcdef}
+  ASSUME_SSL: "false"
+  FORCE_SSL: "false"
+  CORS_ORIGINS: http://localhost:8080
+  OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+  RAILS_LOG_LEVEL: info
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: spendflow
+      POSTGRES_PASSWORD: spendflow
+      POSTGRES_DB: spendflow
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U spendflow"]
+      interval: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      retries: 20
+
+  api:
+    build: ./api
+    environment: *api-env
+    volumes:
+      - storage:/rails/storage
+    depends_on:
+      db: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "curl", "-fs", "http://localhost:3000/up"]
+      interval: 5s
+      retries: 30
+
+  sidekiq:
+    build: ./api
+    command: ["bundle", "exec", "sidekiq", "-C", "config/sidekiq.yml"]
+    environment: *api-env
+    volumes:
+      - storage:/rails/storage
+    depends_on:
+      api: { condition: service_healthy }
+
+  web:
+    build: ./web
+    ports:
+      - "8080:80"
+    depends_on:
+      api: { condition: service_healthy }
+
+volumes:
+  pgdata:
+  storage:
