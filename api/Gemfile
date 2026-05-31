@@ -57,3 +57,4 @@ gem "aasm", "~> 5.5"
 gem "sidekiq", "~> 8.0"
 gem "faraday", "~> 2.12"
 gem "pdf-reader", "~> 2.14"
+gem "aws-sdk-s3", "~> 1.170", require: false
