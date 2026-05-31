@@ -83,7 +83,7 @@ Suggested walkthrough:
 
 1. As Fiona, upload `contoso-CH-90211.pdf`. It quotes PO-00003, but bills 6 monitors at $395 when only 3 arrived and the PO price was $380. Both problems show up in the match grid.
 2. Upload `northwind-NW-1042.pdf`. It is a clean match.
-3. Upload the `-scan.png` of the same invoice. It goes through the vision model and comes back flagged as a duplicate.
+3. Upload the `-scan.png` of the same invoice. It goes through the vision model and comes back flagged as a duplicate. This step needs `OPENROUTER_API_KEY`, because the offline extractor can't read images.
 
 ## Tests
 
@@ -114,7 +114,7 @@ DATABASE_NAME=spendflow_perf bin/rails db:schema:load perf:seed perf:benchmark L
 
 ## Deploying
 
-`render.yaml` is a Render Blueprint for Postgres, Redis, the API, the Sidekiq worker and the nginx-served client. Set `OPENROUTER_API_KEY`, `CORS_ORIGINS`, and `API_UPSTREAM` (the API service's URL) in the dashboard.
+`render.yaml` is a Render Blueprint for Postgres, Redis, the API, the Sidekiq worker and the nginx-served client. On Render, the API and the worker don't share a disk, so uploaded invoices must go to an S3-compatible bucket: set `ACTIVE_STORAGE_SERVICE=s3` and the `S3_*` variables. Also set `OPENROUTER_API_KEY`, `CORS_ORIGINS`, `API_UPSTREAM` (the API service's URL), and the same `SECRET_KEY_BASE` on the API and the worker. Docker Compose uses local disk storage on a shared volume, so it needs none of this.
 
 ## Layout
 
