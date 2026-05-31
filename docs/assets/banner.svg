@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="320" viewBox="0 0 1280 320" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <defs>
+    <pattern id="ledger" width="1280" height="32" patternUnits="userSpaceOnUse">
+      <line x1="0" y1="31.5" x2="1280" y2="31.5" stroke="#ffffff" stroke-opacity="0.05"/>
+    </pattern>
+  </defs>
+  <rect width="1280" height="320" rx="18" fill="#1C2A39"/>
+  <rect width="1280" height="320" rx="18" fill="url(#ledger)"/>
+  <line x1="96" y1="0" x2="96" y2="320" stroke="#B3261E" stroke-opacity="0.35" stroke-width="2"/>
+
+  <g transform="translate(140 96)">
+    <rect width="56" height="56" rx="12" fill="#F5F7F6"/>
+    <path d="M16 40V16h18a8 8 0 0 1 0 16H16" fill="none" stroke="#1C2A39" stroke-width="6" stroke-linejoin="round"/>
+    <circle cx="42" cy="42" r="5" fill="#2F7A4C"/>
+    <text x="80" y="44" font-size="52" font-weight="800" fill="#F5F7F6" letter-spacing="-1">SpendFlow</text>
+    <text x="0" y="104" font-size="24" fill="#F5F7F6" fill-opacity="0.72">Multi-tenant procure-to-pay: requisitions, approvals, purchase orders,</text>
+    <text x="0" y="136" font-size="24" fill="#F5F7F6" fill-opacity="0.72">goods receipts and AI-read invoices with 3-way matching.</text>
+  </g>
+
+  <g transform="translate(1010 92) rotate(-8)">
+    <rect x="0" y="0" width="200" height="74" rx="8" fill="none" stroke="#5FBF86" stroke-width="4"/>
+    <rect x="7" y="7" width="186" height="60" rx="5" fill="none" stroke="#5FBF86" stroke-width="2"/>
+    <text x="100" y="46" text-anchor="middle" font-size="30" font-weight="900" fill="#5FBF86" letter-spacing="2">MATCHED</text>
+  </g>
+  <g transform="translate(1000 196) rotate(5)">
+    <rect x="0" y="0" width="200" height="56" rx="7" fill="none" stroke="#E0A84A" stroke-width="3" stroke-opacity="0.85"/>
+    <text x="100" y="37" text-anchor="middle" font-size="22" font-weight="900" fill="#E0A84A" fill-opacity="0.85" letter-spacing="2">PO-00003</text>
+  </g>
+</svg>
