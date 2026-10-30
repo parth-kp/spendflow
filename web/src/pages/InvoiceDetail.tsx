@@ -122,10 +122,15 @@ export function InvoiceDetail() {
               </dl>
               <Stamp value={inv.status} note={inv.approved_by ? `by ${inv.approved_by.name}` : undefined} />
             </div>
-            {confidence !== null && (
+            {(confidence !== null || inv.match_confidence !== null) && (
               <div className="flex flex-wrap gap-x-6 gap-y-1 border-t border-rule px-4 py-2.5 text-xs text-ink-soft">
                 {inv.extraction?.source && <span>Read by {String(inv.extraction.source).replace('openrouter:', '')}</span>}
                 {confidence !== null && <span>Reader confidence {(confidence * 100).toFixed(0)}%</span>}
+                {inv.match_confidence !== null && (
+                  <span title="Probability from TypeSafe Jev that this invoice belongs to the linked PO">
+                    Jev: {(inv.match_confidence * 100).toFixed(0)}% likely this bill is for {inv.purchase_order?.number}
+                  </span>
+                )}
               </div>
             )}
             {warnings.length > 0 && (
