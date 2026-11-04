@@ -72,6 +72,7 @@ A procure-to-pay app where an LLM reads the supplier's invoice and a 3-way match
 <img src="https://img.shields.io/badge/OpenRouter-structured_output-6467F2?style=for-the-badge&logo=openai&logoColor=white" alt="OpenRouter">
 <img src="https://img.shields.io/badge/gpt--4o--mini-text_PDFs-412991?style=for-the-badge&logo=openai&logoColor=white" alt="gpt-4o-mini">
 <img src="https://img.shields.io/badge/Gemini_2.5_Flash-scans-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white" alt="Gemini 2.5 Flash">
+<img src="https://img.shields.io/badge/TypeSafe_Jev-match_confidence-1C2A39?style=for-the-badge" alt="TypeSafe Jev">
 </td>
 </tr>
 <tr>
@@ -144,6 +145,7 @@ A procure-to-pay app where an LLM reads the supplier's invoice and a 3-way match
 - **Quantity:** invoice vs *received and not yet invoiced*.
 - Supplier, currency and PO-status checks, plus **duplicate detection**.
 - Uploaders can't approve their own invoices. Approving an exception needs a written reason. Duplicates can never be approved.
+- An optional **TypeSafe Jev** probability that the bill belongs to the PO.
 
 </td>
 </tr>
@@ -211,12 +213,14 @@ flowchart LR
     subgraph AI["AI services"]
         direction TB
         OR["OpenRouter<br/>gpt-4o-mini · Gemini Flash"]
+        Jev["TypeSafe Jev<br/>optional"]
     end
 
     UI -- "/api/v1 JSON" --> Auth
     Svc --> PG
     Svc -- enqueue --> Redis --> Jobs
     PJ -- "read invoice" --> OR
+    MJ -. "match confidence" .-> Jev
     Jobs --> PG
 ```
 
@@ -357,6 +361,7 @@ npm run dev
 | `OPENROUTER_API_KEY` | LLM invoice reading | offline heuristic extractor |
 | `OPENROUTER_TEXT_MODEL` | Model for PDFs with a text layer | `openai/gpt-4o-mini` |
 | `OPENROUTER_VISION_MODEL` | Model for scans and photos | `google/gemini-2.5-flash` |
+| `TYPESAFE_API_KEY` | Jev match-confidence score | skipped |
 | `REDIS_URL` | Sidekiq | `redis://localhost:6379/0` |
 | `CORS_ORIGINS` | Allowed client origins | `http://localhost:5173` |
 | `ACTIVE_STORAGE_SERVICE` | `s3` when API and worker don't share a disk | `local` |
@@ -413,7 +418,7 @@ cd api && bundle exec rspec        # 132 examples, runs offline
 |---|---|
 | Models | Validations, totals, numbering, the AASM transitions, append-only audit events |
 | Services | Approval chains and eligibility, PO issue, receiving, 3-way match, duplicates, approval controls |
-| AI | OpenRouter calls stubbed with WebMock: request shape, model routing, failure handling |
+| AI | OpenRouter and Jev calls stubbed with WebMock: request shape, model routing, failure handling |
 | Jobs | Extraction → PO lookup → match end to end, retries, failing visibly instead of hanging |
 | Requests | Every endpoint, role-based access, cross-tenant access attempts (expect 404) |
 | Queries | The SQL approval inbox is checked against the Ruby eligibility rule for every role |
@@ -432,7 +437,7 @@ spendflow/
 │   │   │   ├── approvals/        multi-level workflow
 │   │   │   ├── procurement/      PO issue, goods receipts
 │   │   │   ├── extraction/       OpenRouter + offline extractor, schema, validation
-│   │   │   ├── matching/         3-way match, line pairing, PO finder
+│   │   │   ├── matching/         3-way match, line pairing, PO finder, Jev
 │   │   │   └── invoices/         apply extraction, run match, approve
 │   │   ├── queries/              approval inbox, dashboard
 │   │   └── jobs/                 Sidekiq jobs

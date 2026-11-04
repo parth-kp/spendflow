@@ -1,8 +1,9 @@
 module Invoices
   class RunMatch
-    def initialize(invoice, actor: nil)
+    def initialize(invoice, actor: nil, advisor: Matching::JevAdvisor.new)
       @invoice = invoice
       @actor = actor
+      @advisor = advisor
     end
 
     def call
@@ -17,12 +18,13 @@ module Invoices
         end
 
         invoice.match_result = result.to_h
+        invoice.match_confidence = advisor.probability(invoice, invoice.purchase_order) if Matching::JevAdvisor.available?
         result.matched? ? invoice.mark_matched! : invoice.flag_exception!
 
         failed = result.checks.reject { |c| c[:passed] }.map { |c| c[:name] } +
                  result.lines.reject { |l| l[:status] == "matched" }.map { |l| "line:#{l[:status]}" }
         invoice.audit!(:matched, actor: actor, status: result.status, purchase_order: invoice.purchase_order&.number,
-                                 issues: failed.uniq)
+                                 issues: failed.uniq, jev_probability: invoice.match_confidence&.to_s)
       end
 
       notify_finance if invoice.exception?
@@ -31,7 +33,7 @@ module Invoices
 
     private
 
-    attr_reader :invoice, :actor
+    attr_reader :invoice, :actor, :advisor
 
     def notify_finance
       ids = User.active.where(role: %w[finance admin]).pluck(:id)

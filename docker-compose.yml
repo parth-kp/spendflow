@@ -7,6 +7,7 @@ x-api-env: &api-env
   FORCE_SSL: "false"
   CORS_ORIGINS: http://localhost:8080
   OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+  TYPESAFE_API_KEY: ${TYPESAFE_API_KEY:-}
   RAILS_LOG_LEVEL: info
 
 services:

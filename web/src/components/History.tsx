@@ -38,6 +38,7 @@ function detail(e: AuditEvent): string | null {
   if (Array.isArray(m.issues) && m.issues.length) parts.push(`issues: ${m.issues.join(', ')}`)
   if (m.source) parts.push(`via ${m.source}`)
   if (m.override) parts.push('override of match exceptions')
+  if (m.jev_probability) parts.push(`Jev match probability ${(Number(m.jev_probability) * 100).toFixed(0)}%`)
   if (m.error) parts.push(String(m.error))
   return parts.length ? parts.join('; ') : null
 }
